@@ -1,0 +1,28 @@
+services:
+  event-echo-postgres:
+    image: postgres:18.4-bookworm
+    container_name: event-echo-env-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ${PROJECT_ROOT}/out/pgdata:/var/lib/postgresql
+    restart: always
+
+
+  event-echo-postgres-migrate:
+    image: migrate/migrate:v4.19.1
+    volumes:
+      - ${PROJECT_ROOT}/migrations:/migrations
+
+  port-forwarder:
+    image: alpine/socat:1.8.1.3
+    container_name: event-echo-env-port-forwarder
+    entrypoint: |
+      /bin/sh -c "
+        socat -d -d tcp-listen:5432,fork,reuseaddr tcp-connect:event-echo-postgres:5432 &
+        wait
+      "
+    ports:
+      - "127.0.0.1:5432:5432"
