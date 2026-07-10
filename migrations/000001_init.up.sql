@@ -10,7 +10,7 @@ CREATE TABLE event_echo.users (
 
     email              VARCHAR(100) NOT NULL CHECK (
         email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
-    ),
+    ) UNIQUE,
 
     password           VARCHAR(256) NOT NULL,
     role               VARCHAR(5)   NOT NULL,

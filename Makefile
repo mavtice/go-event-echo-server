@@ -12,7 +12,7 @@ env-down: ## env: Остановить окружение проекта
 env-cleanup: ## env: Очистить окружение проекта
 	@read -p "Очистить все volume файлы окружения? Опасность утери данных. [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
-		docker compose down event-echo-postgres && \
+		docker compose down event-echo-postgres port-forwarder && \
 		rm -rf ${PROJECT_ROOT}/out/pgdata && \
 		echo "Файлы окружения очищены"; \
 	else \
@@ -53,3 +53,24 @@ env-port-forward: ## env: Открыть порты сервисов окруж�
 
 env-port-close: ## env: Закрыть порты сервисов окружения
 	@docker compose down port-forwarder
+
+
+
+app-run: ## Golang приложение: Запустить локально на хост-системе (для локальной разработки)
+	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	export POSTGRES_HOST=localhost && \
+	go mod tidy && \
+	go run ${PROJECT_ROOT}/cmd/app/main.go
+
+app-deploy: ## Golang приложение: Запустить в Docker Compose сервисе (для деплоя)
+	@docker compose up -d --build app
+
+app-undeploy: ## Golang приложение: Остановить Docker Compose сервис
+	@docker compose down app
+
+
+help: ## Показать справку по командам
+	@echo "=== Центр управления проектом ==="
+	@echo ""
+	@echo "Доступные команды:"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)

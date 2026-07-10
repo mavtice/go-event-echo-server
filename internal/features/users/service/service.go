@@ -1,0 +1,52 @@
+// Package users_service содержит бизнес-логику управления пользователями.
+package users_service
+
+import (
+	"context"
+
+	"github.com/mavtice/golang-event-echo-server/internal/core/domain"
+)
+
+// UsersService — сервис пользователей с бизнес-логикой CRUD-операций.
+type UsersService struct {
+	usersRepository UsersRepository
+}
+
+// UsersRepository — интерфейс репозитория пользователей.
+// Определён в пакете сервиса по принципу Dependency Inversion.
+type UsersRepository interface {
+	CreateUser(
+		ctx context.Context,
+		user domain.User,
+	) (domain.User, error)
+
+	GetUsers(
+		ctx context.Context,
+		limit *int,
+		offset *int,
+	) ([]domain.User, error)
+
+	GetUser(
+		ctx context.Context,
+		id int,
+	) (domain.User, error)
+
+	DeleteUser(
+		ctx context.Context,
+		id int,
+	) error
+
+	UpdateUser(
+		ctx context.Context,
+		user domain.User,
+	) (domain.User, error)
+}
+
+// NewUsersService создаёт сервис пользователей с внедрённым репозиторием.
+func NewUsersService(
+	usersRepository UsersRepository,
+) *UsersService {
+	return &UsersService{
+		usersRepository: usersRepository,
+	}
+}
