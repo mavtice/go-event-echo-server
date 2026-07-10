@@ -1,4 +1,23 @@
 services:
+  app:
+    build:
+      context: ${PROJECT_ROOT}
+      dockerfile: ${PROJECT_ROOT}/cmd/app/Dockerfile
+    container_name: golang-event-echo-server
+    env_file:
+      - ${PROJECT_ROOT}/.env
+    environment:
+      - HTTP_ADDR=:5050
+      - POSTGRES_HOST=app-postgres
+      - LOGGER_FOLDER=/app/out/logs
+    volumes:
+      - ${PROJECT_ROOT}/out/logs:/app/out/logs
+    ports:
+      - "5050:5050"
+    restart: always
+
+
+
   event-echo-postgres:
     image: postgres:18.4-bookworm
     container_name: event-echo-env-postgres
@@ -15,6 +34,8 @@ services:
     image: migrate/migrate:v4.19.1
     volumes:
       - ${PROJECT_ROOT}/migrations:/migrations
+
+
 
   port-forwarder:
     image: alpine/socat:1.8.1.3
